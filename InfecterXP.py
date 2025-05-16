@@ -30,6 +30,29 @@ NGROK_AUTH_TOKEN = ""  # Your Ngrok auth token (optional)
 active_sessions = {}
 fernet = Fernet(ENCRYPTION_KEY)
 
+def display_menu():
+    """Display the InfecterXP menu in purple ASCII art"""
+    purple_color = '\033[95m'
+    end_color = '\033[0m'
+    
+    menu = f"""
+{purple_color}
+  _____  _____  _____ _______ _____  ______  _____   ____  _____  
+ |_   _|/ ____|/ ____|__   __|  __ \|  ____|/ ____| |___ \|  __ \ 
+   | | | (___ | |       | |  | |__) | |__  | (___     __) | |__) |
+   | |  \___ \| |       | |  |  ___/|  __|  \___ \   |__ <|  ___/ 
+  _| |_ ____) | |____   | |  | |    | |____ ____) |  ___) | |     
+ |_____|_____/ \_____|  |_|  |_|    |______|_____/  |____/|_|     
+                                                                  
+  +-------------------------------------------------------------+
+  | [1] Start Server          [2] Show System Info              |
+  | [3] Open Web Panel        [4] Generate New Password         |
+  | [5] Configure Ngrok       [6] Exit                          |
+  +-------------------------------------------------------------+
+{end_color}
+"""
+    print(menu)
+
 def setup_tunneling():
     """Configure Ngrok tunneling for external access"""
     if not USE_NGROK:
@@ -366,33 +389,85 @@ def get_local_ip():
     except:
         return socket.gethostbyname(socket.gethostname())
 
+def generate_new_password():
+    """Generate a new random password"""
+    import random
+    import string
+    chars = string.ascii_letters + string.digits + "!@#$%^&*()"
+    return ''.join(random.choice(chars) for _ in range(12))
+
+def main():
+    global ADMIN_PASSWORD
+    
+    while True:
+        display_menu()
+        choice = input("Select an option: ").strip()
+        
+        if choice == "1":
+            # Configure tunneling (Ngrok)
+            public_url = setup_tunneling() if USE_NGROK else None
+            
+            # Start session cleanup
+            threading.Thread(target=cleanup_sessions, daemon=True).start()
+            
+            # Get local IP address
+            local_ip = get_local_ip()
+            
+            # Start server
+            server = HTTPServer(('0.0.0.0', PORT), AdminServer)
+            
+            print(f"\nRemote administration server started:")
+            print(f"Local URL: http://{local_ip}:{PORT}")
+            print(f"Public URL: {public_url or 'Not configured'}")
+            print(f"Access password: {ADMIN_PASSWORD}")
+            print("\nAccess from any network using the public URL above")
+            
+            # Try to open browser automatically
+            try:
+                webbrowser.open(f"http://{local_ip}:{PORT}")
+            except:
+                pass
+            
+            try:
+                server.serve_forever()
+            except KeyboardInterrupt:
+                server.server_close()
+                print("\nServer stopped")
+                
+        elif choice == "2":
+            print("\nSystem Information:")
+            info = get_system_info()
+            for key, value in info.items():
+                print(f"{key.replace('_', ' ').title()}: {value}")
+            input("\nPress Enter to continue...")
+            
+        elif choice == "3":
+            local_ip = get_local_ip()
+            webbrowser.open(f"http://{local_ip}:{PORT}")
+            print(f"Web panel opened in browser at http://{local_ip}:{PORT}")
+            
+        elif choice == "4":
+            new_pass = generate_new_password()
+            ADMIN_PASSWORD = new_pass
+            print(f"\nNew password generated: {new_pass}")
+            print("Note: You'll need to restart the server for this change to take effect.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == "5":
+            global USE_NGROK, NGROK_AUTH_TOKEN
+            print("\nNgrok Configuration:")
+            USE_NGROK = input("Enable Ngrok tunneling? (y/n): ").lower() == 'y'
+            if USE_NGROK:
+                NGROK_AUTH_TOKEN = input("Enter Ngrok auth token (leave blank if none): ").strip()
+            print("Ngrok settings updated.")
+            input("\nPress Enter to continue...")
+            
+        elif choice == "6":
+            print("\nExiting InfecterXP...")
+            break
+            
+        else:
+            print("\nInvalid option. Please try again.")
+
 if __name__ == '__main__':
-    # Configure tunneling (Ngrok)
-    public_url = setup_tunneling() if USE_NGROK else None
-    
-    # Start session cleanup
-    threading.Thread(target=cleanup_sessions, daemon=True).start()
-    
-    # Get local IP address
-    local_ip = get_local_ip()
-    
-    # Start server
-    server = HTTPServer(('0.0.0.0', PORT), AdminServer)
-    
-    print(f"\nRemote administration server started:")
-    print(f"Local URL: http://{local_ip}:{PORT}")
-    print(f"Public URL: {public_url or 'Not configured'}")
-    print(f"Access password: {ADMIN_PASSWORD}")
-    print("\nAccess from any network using the public URL above")
-    
-    # Try to open browser automatically
-    try:
-        webbrowser.open(f"http://{local_ip}:{PORT}")
-    except:
-        pass
-    
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        server.server_close()
-        print("\nServer stopped")
+    main()
