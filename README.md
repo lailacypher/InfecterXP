@@ -15,10 +15,15 @@ Encrypted authentication with token-based sessions
 ### Key Features
 
 ✔ Cross-Platform – Works on Windows, Linux, and macOS
+
 ✔ Remote Access – Supports Ngrok tunneling for external connections
+
 ✔ Secure Authentication – Password-protected (A9!Z6%ZXCv by default) with encrypted sessions
+
 ✔ Command Execution – Run any CMD/Bash/Zsh commands and view output
+
 ✔ System Audit – Retrieve hostname, IP, users, OS details, and more
+
 ✔ Responsive Web UI – Easy-to-use browser-based interface
 
 ### Use Cases
