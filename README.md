@@ -178,6 +178,7 @@ Tested on Windows 10 22H2 with Defender disabled during development
 4. Legal safeguards
 5. Directory structure transparency
 Access Methods
-Local Network: http://[local-ip]:8080
+Local Network:
+http://[local-ip]:8080
 External (Ngrok): https://[random-subdomain].ngrok.io
 
