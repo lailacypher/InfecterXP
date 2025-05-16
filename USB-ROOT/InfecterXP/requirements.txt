@@ -1,0 +1,8 @@
+# InfecterXP Core Dependencies
+cryptography==41.0.7
+Flask==3.0.2
+pywin32==306
+pyngrok==7.0.0
+requests==2.31.0
+colorama==0.4.6
+psutil==5.9.6
